@@ -13,7 +13,7 @@ function App() {
         <Navbar />
         
         {/* Contenedor para el contenido de cada página */}
-        <main className="max-w-7xl mx-auto w-full">
+        <main className="w-full pt-16">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
