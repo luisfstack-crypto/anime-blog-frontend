@@ -8,6 +8,7 @@ import CreatePost from './pages/CreatePost';
 import AdminPanel from './pages/AdminPanel';
 import PostView from './pages/PostView';
 import EmailPreview from './pages/EmailPreview';
+import ForgotPassword from './pages/Forgotpassword';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/post/:id" element={<PostView />} />
             <Route path="/preview-email" element={<EmailPreview />} />
+            <Route path="/forgotpassword" element={<ForgotPassword />} />
           </Routes>
         </main>
       </div>
