@@ -1,6 +1,7 @@
 import verifyEmailTemplate from "../emailTemplates/verifyEmail";
 import resetPasswordTemplate from "../emailTemplates/resetPassword";
 import welcomeTemplate from "../emailTemplates/welcome";
+import verificationCodeTemplate from "../emailTemplates/verificationCode";
 
 function EmailPreview() {
   const verify = verifyEmailTemplate({
@@ -17,22 +18,33 @@ function EmailPreview() {
     name: "Braulio"
   });
 
+  const code = verificationCodeTemplate({
+    name: "Braulio",
+    code: "123 456"
+  });
+
   return (
-    <div>
-      <h2>Verify Email</h2>
+    <div style={{ background: "#0A0806", padding: "40px" }}>
+      
+      <h2 style={{ color: "#fff" }}>Verify Email</h2>
       <div dangerouslySetInnerHTML={{ __html: verify }} />
 
       <hr />
 
-      <h2>Reset Password</h2>
+      <h2 style={{ color: "#fff" }}>Reset Password</h2>
       <div dangerouslySetInnerHTML={{ __html: reset }} />
 
       <hr />
-      
-      <h2>Welcome</h2>
+
+      <h2 style={{ color: "#fff" }}>Welcome</h2>
       <div dangerouslySetInnerHTML={{ __html: welcome }} />
+
+      <hr />
+
+      <h2 style={{ color: "#fff" }}>Verification Code</h2>
+      <div dangerouslySetInnerHTML={{ __html: code }} />
+
     </div>
-    
   );
 }
 

@@ -93,7 +93,7 @@ export default function Login() {
               <div className="field">
                 <div className="field-row">
                   <label className="field-label" style={{ marginBottom: 0 }}>Contraseña</label>
-                  <a href="#" className="field-forgot">¿Olvidaste tu contraseña?</a>
+                  <a href="/Forgotpassword"  className="field-forgot">¿Olvidaste tu contraseña?</a>
                 </div>
                 <div className="field-wrap" style={{ marginTop: '0.5rem' }}>
                   <span className="field-icon">
