@@ -9,6 +9,7 @@ import AdminPanel from './pages/AdminPanel';
 import PostView from './pages/PostView';
 import EmailPreview from './pages/EmailPreview';
 import ForgotPassword from './pages/Forgotpassword';
+import EditPost from './pages/EditPost';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-post" element={<CreatePost />} />
+            <Route path="/edit-post/:id" element={<EditPost />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/post/:id" element={<PostView />} />
             <Route path="/preview-email" element={<EmailPreview />} />

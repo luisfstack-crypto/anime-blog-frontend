@@ -1,12 +1,50 @@
+import { useState } from 'react'; // 👈 1. Importamos useState
 import { Link, useNavigate } from 'react-router-dom';
 import namiBg from '../assets/nami.jpg';
 
 export default function Login() {
   const navigate = useNavigate();
+  
+  // 👈 2. Creamos los "espacios de memoria" para lo que escribe el usuario
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    navigate('/dashboard');
+    setErrorMsg('');
+    
+    try {
+      const response = await fetch('https://localhost:7288/api/Auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // 🛡️ GUARDADO DE SESIÓN COMPLETO
+        localStorage.setItem('token', data.token); // Tu token JWT
+        
+        // Aquí es donde sucede la magia del nombre:
+        // Si C# no manda el nombre por error, usamos el inicio del email como plan C
+        localStorage.setItem('userName', data.userName || email.split('@')[0]); 
+        
+        // Estos dos son para que el Dashboard sepa qué botones mostrar
+        localStorage.setItem('userRole', data.userRole); 
+        localStorage.setItem('userId', data.userId);
+
+        navigate('/dashboard'); 
+      } else {
+        const errText = await response.text();
+        setErrorMsg(errText || 'Credenciales incorrectas. Intenta de nuevo.');
+      }
+    } catch (err) {
+      setErrorMsg('No se pudo conectar con el servidor. ¿Está encendida la API en Visual Studio?');
+    }
   };
 
   return (
@@ -15,7 +53,6 @@ export default function Login() {
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
 
         .login-root { min-height: calc(100vh - 64px); display: flex; background: #0A0806; font-family: 'DM Sans', sans-serif; }
-
 
         .login-panel-img { position: relative; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 3rem; background-size: cover; background-position: center; display: none; }
         @media (min-width: 768px) { .login-panel-img { display: flex; } }
@@ -28,7 +65,6 @@ export default function Login() {
         .login-panel-title span { color: #E6391E; }
         .login-panel-sub { font-size: 0.88rem; font-weight: 300; color: #6B6259; line-height: 1.65; font-style: italic; }
 
-
         .login-panel-form { width: 100%; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; border-left: 1px solid rgba(245,240,235,0.04); background: #0D0A07; }
         @media (min-width: 768px) { .login-panel-form { width: 460px; flex-shrink: 0; } }
 
@@ -36,8 +72,7 @@ export default function Login() {
 
         .login-form-eyebrow { font-family: 'Bebas Neue', sans-serif; font-size: 0.65rem; letter-spacing: 0.3em; color: rgba(230,57,30,0.5); margin-bottom: 0.5rem; }
         .login-form-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #F5F0EB; letter-spacing: 0.02em; line-height: 1; margin-bottom: 0.4rem; }
-        .login-form-sub { font-size: 0.78rem; font-weight: 300; color: #4A4240; margin-bottom: 2.5rem; }
-
+        .login-form-sub { font-size: 0.78rem; font-weight: 300; color: #4A4240; margin-bottom: 1.5rem; }
 
         .field { margin-bottom: 1.25rem; }
         .field-label { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #6B6259; margin-bottom: 0.5rem; }
@@ -59,10 +94,11 @@ export default function Login() {
         .login-footer a:hover { color: #FF4A2E; }
 
         .divider { width: 100%; height: 1px; background: rgba(245,240,235,0.04); margin: 2rem 0; }
+        
+        .error-message { color: #E6391E; font-size: 0.8rem; margin-bottom: 1rem; text-align: center; font-weight: bold; background: rgba(230,57,30,0.1); padding: 8px; border-radius: 4px;}
       `}</style>
 
       <div className="login-root">
-
         <div className="login-panel-img" style={{ backgroundImage: `url(${namiBg})` }}>
           <div className="login-panel-img-overlay" />
           <div className="login-panel-copy">
@@ -72,12 +108,14 @@ export default function Login() {
           </div>
         </div>
 
-
         <div className="login-panel-form">
           <div className="login-form-inner">
             <p className="login-form-eyebrow">// Acceso</p>
             <h2 className="login-form-title">Bienvenido de nuevo</h2>
             <p className="login-form-sub">Ingresa tus credenciales para continuar.</p>
+
+            {/* 👇 Mensaje de error si la contraseña está mal 👇 */}
+            {errorMsg && <div className="error-message">{errorMsg}</div>}
 
             <form onSubmit={handleLogin}>
               <div className="field">
@@ -86,7 +124,15 @@ export default function Login() {
                   <span className="field-icon">
                     <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
                   </span>
-                  <input type="email" required className="field-input" placeholder="admin@animeblog.com" />
+                  {/* 👇 Conectamos el input con el estado email 👇 */}
+                  <input 
+                    type="email" 
+                    required 
+                    className="field-input" 
+                    placeholder="admin@animeblog.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)} 
+                  />
                 </div>
               </div>
 
@@ -99,7 +145,15 @@ export default function Login() {
                   <span className="field-icon">
                     <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                   </span>
-                  <input type="password" required className="field-input" placeholder="••••••••" />
+                  {/* 👇 Conectamos el input con el estado password 👇 */}
+                  <input 
+                    type="password" 
+                    required 
+                    className="field-input" 
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} 
+                  />
                 </div>
               </div>
 
